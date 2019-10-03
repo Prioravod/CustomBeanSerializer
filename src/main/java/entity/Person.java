@@ -1,12 +1,15 @@
 package entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
-public class Person implements Serializable, Bean {
+public class Person implements Serializable, Beanable {
     //private properties
     private String name;
     private String surname;
     private int age;
+    private BigDecimal medicalCondition;
+    private Car car;
 
     //no-arg constructor
     public Person(){
@@ -38,12 +41,30 @@ public class Person implements Serializable, Bean {
         this.age = age;
     }
 
+    public BigDecimal getMedicalCondition() {
+        return medicalCondition;
+    }
+
+    public void setMedicalCondition(BigDecimal medicalCondition) {
+        this.medicalCondition = medicalCondition;
+    }
+
+    public Car getCar() {
+        return car;
+    }
+
+    public void setCar(Car car) {
+        this.car = car;
+    }
+
     @Override
     public String toString() {
-        return "entities.Person {" +
+        return "Person{" +
                 "name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
                 ", age=" + age +
+                ", medicalCondition=" + medicalCondition +
+                ", car=" + car +
                 '}';
     }
 }

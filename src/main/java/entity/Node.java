@@ -1,13 +1,15 @@
 package entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 
-public class Node implements Serializable, Bean{
+public class Node implements Serializable, Beanable {
 
     private Instant date;
     private String text;
     private Integer priority;
+    private boolean posted;
 
 
     public Node(){}
@@ -36,12 +38,21 @@ public class Node implements Serializable, Bean{
         this.priority = priority;
     }
 
+    public boolean isPosted() {
+        return posted;
+    }
+
+    public void setPosted(boolean posted) {
+        this.posted = posted;
+    }
+
     @Override
     public String toString() {
         return "Node{" +
                 "date=" + date +
                 ", text='" + text + '\'' +
                 ", priority=" + priority +
+                ", posted=" + posted +
                 '}';
     }
 }

@@ -3,7 +3,10 @@ package util;
 import org.apache.commons.lang3.ClassUtils;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
@@ -47,19 +50,35 @@ public class ArrayUtil {
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
-    public static <T> T dynamicParse(Class<T> type, String value) throws ReflectiveOperationException{
+    public static <T,Temp> T dynamicParse(Class<T> type, String value) throws ReflectiveOperationException{
         T result = null;
 
-        if (ClassUtils.isPrimitiveOrWrapper(type)) {
+        //if "type" is a numeric or primitive type (used "valueOf" method")
+        if (ClassUtils.isPrimitiveOrWrapper(type) || type == BigDecimal.class || type == BigInteger.class) {
+
+            //Wrapper class
             Class<?> wrapper;
+
+            //Getting link for "valueOf" method
+            Method valueOf;
+
+            //Wrapping if it's a primitive
             if (type.isPrimitive()) {
                 wrapper = ClassUtils.primitiveToWrapper(type);
             }
             else {
                 wrapper = type;
             }
-            Method valueOf = wrapper.getDeclaredMethod("valueOf",String.class);
-            result = (T) valueOf.invoke(null, value);
+
+            //Getting result from "valueOf" method call
+            if (type != BigDecimal.class && type != BigInteger.class) {
+                valueOf = wrapper.getDeclaredMethod("valueOf",String.class);
+                result = (T) valueOf.invoke(null, value);
+            }
+            else {
+                if (type == BigInteger.class) result = (T) new BigInteger(value);
+                if (type == BigDecimal.class) result = (T) new BigDecimal(value);
+            }
         }
         else if (type == String.class){
             result = (T) value;
@@ -67,6 +86,7 @@ public class ArrayUtil {
         else if (type == Instant.class) {
             result = (T) Instant.parse(value);
         }
+
         return result;
 
 
