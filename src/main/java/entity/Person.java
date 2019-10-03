@@ -7,9 +7,10 @@ public class Person implements Serializable, Beanable {
     //private properties
     private String name;
     private String surname;
+    private Car car;
     private int age;
     private BigDecimal medicalCondition;
-    private Car car;
+
 
     //no-arg constructor
     public Person(){

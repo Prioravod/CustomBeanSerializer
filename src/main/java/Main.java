@@ -3,6 +3,7 @@ import serializer.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.SQLOutput;
 import java.time.Instant;
 
 public class Main {
@@ -26,22 +27,57 @@ public class Main {
         n1.setPriority(3);
         n1.setPosted(true);
 
+        System.out.println(
+                "Before:\n" +
+                p1.toString() + "\n" +
+                n1.toString()
+        );
 
-
+        //Two types of serializers
         BuildInSerializer bis = new BuildInSerializer();
         ReflectiveSerializer rs = new ReflectiveSerializer();
 
-        printResult(p1,bis);
-        printResult(p1, rs);
+        System.out.println("\nAfter:");
 
-        printResult(n1, bis);
-        printResult(n1, rs);
+        executeAndPrintResult(p1,bis);
+        executeAndPrintResult(p1, rs);
+
+
+        executeAndPrintResult(n1, bis);
+        executeAndPrintResult(n1, rs);
+
+        System.out.println("\n\n----------In detail about one object----------");
+
+        executeAndDetailedPrintResult(p1,rs);
+
+
     }
 
-    private static <T> T printResult(T bean, SuperEncoder serializer) throws IOException, ReflectiveOperationException {
-        T obj = (T) serializer.deserialize(serializer.serialize(bean));
-        System.out.println(obj + "\n");
-        return obj;
+    private static <T> void executeAndPrintResult(T bean, SuperEncoder serializer) throws IOException, ReflectiveOperationException {
+        //Serializing object
+        byte[] byteStream = serializer.serialize(bean);
+
+        //Deserialize object
+        T obj = (T) serializer.deserialize(byteStream);
+
+        //Print info about: Serialization tools and result object
+        System.out.println(serializer.getClass().getName() + " : " + obj);
+    }
+
+    private static <T> void executeAndDetailedPrintResult(T bean, SuperEncoder serializer) throws IOException, ReflectiveOperationException {
+        System.out.println("Source object:\n" + bean.toString()+"\n");
+        //Serializing object
+        byte[] byteStream = serializer.serialize(bean);
+
+        System.out.println("ByteStream:");
+        for (byte b : byteStream) System.out.print(b);
+        System.out.println("\n\nRestored object");
+
+        //Deserialize object
+        T obj = (T) serializer.deserialize(byteStream);
+
+        //Print info about: Serialization tools and result object
+        System.out.println(serializer.getClass().getName() + " : " + obj);
     }
 
 }

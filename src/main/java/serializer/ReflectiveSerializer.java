@@ -34,7 +34,12 @@ public class ReflectiveSerializer implements SuperEncoder {
 
             field.setAccessible(true);
 
-            if (field.get(anyBean) instanceof Beanable) {
+            if(field.get(anyBean) == null) {
+                result = concatByteArrays(result,
+                        field.getName().getBytes(StandardCharsets.UTF_8),
+                        FIELD_SEPARATOR,
+                        COMMON_SEPARATOR);
+            } else if (field.get(anyBean) instanceof Beanable) {
                 result = concatByteArrays(result,
                         field.getName().getBytes(StandardCharsets.UTF_8),
                         FIELD_SEPARATOR,
@@ -70,7 +75,6 @@ public class ReflectiveSerializer implements SuperEncoder {
             i++;
         }
 
-
         String className = byteArrParseToString(buffer);
 
         buffer.clear();
@@ -89,10 +93,15 @@ public class ReflectiveSerializer implements SuperEncoder {
                         buffField.setAccessible(true);
                     }
                     if ((data[i] == COMMON_SEPARATOR[0]) && (buffField != null)) {
-                        String value = byteArrParseToString(buffer);
-                        buffField.set(obj, dynamicParse(buffField.getType(), value));
-                        buffField = null;
-                        buffer.clear();
+                        if (buffer.size() == 0) {
+                            buffField.set(obj, null);
+                            buffField = null;
+                        } else {
+                            String value = byteArrParseToString(buffer);
+                            buffField.set(obj, dynamicParse(buffField.getType(), value));
+                            buffField = null;
+                            buffer.clear();
+                        }
                     }
                 }
             }
@@ -102,13 +111,20 @@ public class ReflectiveSerializer implements SuperEncoder {
                     if (data[i] != SPECIAL_SEPARATOR[0] && composite) buffer.add(data[i]);
                     else if (data[i] == SPECIAL_SEPARATOR[0] && composite && data[i+1] == COMMON_SEPARATOR[0]) {
 
-                        byte[] compositeObject = listToByteArray(buffer);
-                        composite = false;
-                        buffField.set(obj, deserialize(compositeObject));
-                        buffer.clear();
-                        buffField = null;
-                        i += 1;
-
+                        if (buffer.size() == 0) {
+                            composite = false;
+                            buffField.set(obj, null);
+                            buffField = null;
+                            i += 1;
+                        }
+                        else {
+                            byte[] compositeObject = listToByteArray(buffer);
+                            composite = false;
+                            buffField.set(obj, deserialize(compositeObject));
+                            buffer.clear();
+                            buffField = null;
+                            i += 1;
+                        }
                     }
                 }
 
